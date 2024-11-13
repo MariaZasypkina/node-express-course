@@ -19,6 +19,7 @@ const getBody = (req, callback) => {
     callback(resultHash);
   });
 };
+// adding the comment for the week2.5
 
 // new variables name and color
 let name = "Enter your name.";
@@ -74,6 +75,10 @@ const server = http.createServer((req, res) => {
     res.end(form());
   }
 });
+
+server.on("request", (req) => {  
+  console.log("event received: ", req.method, req.url);  
+});  
 
 server.listen(3000);
 console.log("The server is listening on port 3000.");
