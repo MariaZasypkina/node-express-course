@@ -1,11 +1,35 @@
 const express = require('express');
 const app = express();
-const { products } = require('./data'); // importing data from data.js
+const { products, people } = require('./data'); // importing product and people data from data.js
+const peopleRouter = require('./routes/people');
 
-app.use(express.static('./public'));
 
-//To return JSON
-app.get('/api/v1/test', (req, res) => {
+
+const logger = (req, res, next) => { // creating middleware function
+    const currentTime = new Date().toLocaleTimeString(); // Getting local time
+    const logMessage = `${req.method} ${req.url} [${currentTime}]`;
+    console.log(logMessage); //log the method, url properties and time from the req object
+    req.logMessage = logMessage; // Save log message to req object
+    next(); // called once middleware processing is completed
+};
+
+
+// method 1 - apply logger locally in a route
+//app.get('/loggerpath1', logger, (req, res) => { 
+//   res.send(`Logger tested with a first method: ${req.logMessage}`);
+//});
+
+//Apply logger middleware for specific paths
+
+app.use(logger); // applies logger middleware to all routes
+
+app.use(express.json()); // middlware for parsing json bodies
+
+app.use('/api/v1/people', peopleRouter);
+
+app.use(express.static('./methods-public')); //serve static files
+
+app.get('/api/v1/test', (req, res) => { //To test JSON
     res.json({ 
         message: "It worked!" 
     });
@@ -15,11 +39,6 @@ app.get('/api/v1/test', (req, res) => {
 app.get('/api/v1/products', (req, res) => {
     res.json(products); 
 });
-
-//Return the path parameter by ID
-//app.get('/api/v1/products/:productID', (req, res) => {
-//    res.json(req.params);
-//});
 
 //Getting product by ID
 app.get('/api/v1/products/:productID', (req, res) => {
